@@ -9,7 +9,7 @@ import type {
 import type { ApiKeyCreateResponse, ApiKeyOut, ProfileOut } from "@/types/profile";
 import type { ExportDataOut, UserSettingsOut, UserSettingsUpdatePatch } from "@/types/settings";
 import type { SharedConversationOut } from "@/types/share";
-import { STORAGE_KEYS } from "@/lib/storage";
+import { clearSession } from "@/lib/storage";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -24,8 +24,7 @@ export class ApiError extends Error {
 
 function handleExpiredSession(): void {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem(STORAGE_KEYS.accessToken);
-  window.localStorage.removeItem(STORAGE_KEYS.user);
+  clearSession();
   if (window.location.pathname !== "/auth") {
     window.location.href = "/auth";
   }

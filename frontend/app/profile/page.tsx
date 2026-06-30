@@ -22,7 +22,7 @@ import {
   updateProfile,
 } from "@/lib/api";
 import { ConversationsProvider } from "@/lib/conversations-context";
-import { readJSON, removeKey, STORAGE_KEYS, writeJSON } from "@/lib/storage";
+import { clearSession, readJSON, STORAGE_KEYS, writeJSON } from "@/lib/storage";
 import type { StoredUser } from "@/types/chat";
 import type { ApiKeyOut, ProfileOut } from "@/types/profile";
 
@@ -94,8 +94,7 @@ function ProfileContent() {
     const accessToken = window.localStorage.getItem(STORAGE_KEYS.accessToken);
     if (!accessToken) return;
     await deleteAccount(accessToken, password);
-    removeKey(STORAGE_KEYS.accessToken);
-    removeKey(STORAGE_KEYS.user);
+    clearSession();
     router.push("/auth");
   }
 

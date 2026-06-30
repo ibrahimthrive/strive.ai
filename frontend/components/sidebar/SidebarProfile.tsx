@@ -7,7 +7,7 @@ import { LogOut, Settings, User as UserIcon } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
-import { readJSON, removeKey, STORAGE_KEYS } from "@/lib/storage";
+import { clearSession, readJSON, STORAGE_KEYS } from "@/lib/storage";
 import { tierBadgeTone, tierLabel } from "@/lib/tier";
 import type { StoredUser } from "@/types/chat";
 
@@ -20,8 +20,7 @@ export function SidebarProfile() {
   }, []);
 
   function handleLogout() {
-    removeKey(STORAGE_KEYS.accessToken);
-    removeKey(STORAGE_KEYS.user);
+    clearSession();
     router.push("/auth");
   }
 

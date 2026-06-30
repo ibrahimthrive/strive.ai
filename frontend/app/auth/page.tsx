@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
-import { STORAGE_KEYS, writeJSON } from "@/lib/storage";
+import { readJSON, removeKey, STORAGE_KEYS, writeJSON } from "@/lib/storage";
 import type { StoredUser } from "@/types/chat";
 
 type Mode = "login" | "register";
@@ -42,6 +42,14 @@ export default function AuthPage() {
       }
 
       const data: AuthResponse = await response.json();
+
+      // A different account signing in on this browser must not inherit the
+      // previous account's locally cached conversations.
+      const previousUser = readJSON<StoredUser>(STORAGE_KEYS.user);
+      if (previousUser && previousUser.id !== data.user.id) {
+        removeKey(STORAGE_KEYS.conversations);
+      }
+
       window.localStorage.setItem(STORAGE_KEYS.accessToken, data.access_token);
       writeJSON(STORAGE_KEYS.user, data.user);
       router.push("/");

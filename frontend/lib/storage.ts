@@ -30,3 +30,15 @@ export function removeKey(key: string): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(key);
 }
+
+/**
+ * Clears everything tied to the signed-in identity (auth + locally cached
+ * conversations). Must run on logout, on a fresh login/register, and on a
+ * forced session expiry — otherwise a different account signing in on the
+ * same browser inherits the previous account's local chat cache.
+ */
+export function clearSession(): void {
+  removeKey(STORAGE_KEYS.accessToken);
+  removeKey(STORAGE_KEYS.user);
+  removeKey(STORAGE_KEYS.conversations);
+}
