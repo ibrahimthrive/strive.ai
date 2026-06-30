@@ -9,6 +9,7 @@ import type {
 import type { ApiKeyCreateResponse, ApiKeyOut, ProfileOut } from "@/types/profile";
 import type { ExportDataOut, UserSettingsOut, UserSettingsUpdatePatch } from "@/types/settings";
 import type { SharedConversationOut } from "@/types/share";
+import { STORAGE_KEYS } from "@/lib/storage";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -21,6 +22,15 @@ export class ApiError extends Error {
   }
 }
 
+function handleExpiredSession(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(STORAGE_KEYS.accessToken);
+  window.localStorage.removeItem(STORAGE_KEYS.user);
+  if (window.location.pathname !== "/auth") {
+    window.location.href = "/auth";
+  }
+}
+
 async function apiRequest<T>(path: string, accessToken: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
@@ -30,6 +40,11 @@ async function apiRequest<T>(path: string, accessToken: string, init?: RequestIn
       ...init?.headers,
     },
   });
+
+  if (response.status === 401) {
+    handleExpiredSession();
+    throw new ApiError("Your session has expired. Please log in again.", 401);
+  }
 
   if (!response.ok) {
     const detail = await response.text().catch(() => response.statusText);
