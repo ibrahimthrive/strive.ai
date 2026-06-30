@@ -9,9 +9,10 @@ interface DropdownProps {
   trigger: React.ReactNode;
   children: React.ReactNode;
   align?: "left" | "right";
+  placement?: "top" | "bottom";
 }
 
-export function Dropdown({ trigger, children, align = "left" }: DropdownProps) {
+export function Dropdown({ trigger, children, align = "left", placement = "bottom" }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -38,9 +39,9 @@ export function Dropdown({ trigger, children, align = "left" }: DropdownProps) {
             animate={preset.animate}
             exit={preset.exit}
             transition={preset.transition}
-            className={`glass-panel absolute z-50 mt-2 min-w-[12rem] rounded-xl p-1 shadow-lg ${
+            className={`glass-panel absolute z-50 min-w-[12rem] rounded-xl p-1 shadow-lg ${
               align === "right" ? "right-0" : "left-0"
-            }`}
+            } ${placement === "top" ? "bottom-full mb-2" : "top-full mt-2"}`}
             onClick={() => setOpen(false)}
           >
             {children}
