@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+@layer components {
+  .glass-panel {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #1e293b transparent;
+  }
+
+  .scroll-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background-color: #1e293b;
+    border-radius: 9999px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #06b6d4;
+  }
+
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(30, 41, 59, 0.6);
+  }
+
+  .skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent);
+    animation: shimmer 1.6s infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-shimmer::after {
+      display: none;
+    }
+  }
+
+  .prose-strive p {
+    margin: 0;
+  }
+
+  .prose-strive p + p {
+    margin-top: 0.75em;
+  }
+
+  .prose-strive ul,
+  .prose-strive ol {
+    margin: 0.5em 0;
+    padding-left: 1.25em;
+  }
+
+  .prose-strive ul {
+    list-style: disc;
+  }
+
+  .prose-strive ol {
+    list-style: decimal;
+  }
+
+  .prose-strive li + li {
+    margin-top: 0.25em;
+  }
+
+  .prose-strive li::marker {
+    color: theme("colors.ink.disabled");
+  }
+
+  .prose-strive h1,
+  .prose-strive h2,
+  .prose-strive h3 {
+    font-weight: 600;
+    color: theme("colors.ink.primary");
+    margin: 0.75em 0 0.4em;
+  }
+
+  .prose-strive h1:first-child,
+  .prose-strive h2:first-child,
+  .prose-strive h3:first-child,
+  .prose-strive p:first-child {
+    margin-top: 0;
+  }
+
+  .prose-strive h1 {
+    font-size: 1.15em;
+  }
+
+  .prose-strive h2 {
+    font-size: 1.08em;
+  }
+
+  .prose-strive h3 {
+    font-size: 1.02em;
+  }
+
+  .prose-strive a {
+    color: theme("colors.neural-cyan");
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose-strive strong {
+    font-weight: 600;
+    color: theme("colors.ink.primary");
+  }
+
+  .prose-strive blockquote {
+    margin: 0.5em 0;
+    padding-left: 0.75em;
+    border-left: 2px solid theme("colors.graphite");
+    color: theme("colors.ink.muted");
+  }
+
+  .prose-strive hr {
+    margin: 1em 0;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animated-gradient-bg {
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient-bg {
+    animation: none;
+  }
+}

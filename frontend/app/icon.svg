@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="strive-icon-gradient" x1="0" y1="32" x2="32" y2="0">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="50%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+  </defs>
+  <path d="M8 26 L22 20 L10 14 L24 6" stroke="url(#strive-icon-gradient)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="8" cy="26" r="2.75" fill="url(#strive-icon-gradient)" />
+  <circle cx="22" cy="20" r="2.25" fill="url(#strive-icon-gradient)" />
+  <circle cx="10" cy="14" r="2.25" fill="url(#strive-icon-gradient)" />
+  <circle cx="24" cy="6" r="2.75" fill="url(#strive-icon-gradient)" />
+</svg>
