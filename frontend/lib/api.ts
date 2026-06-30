@@ -30,6 +30,28 @@ function handleExpiredSession(): void {
   }
 }
 
+/**
+ * FastAPI error bodies are JSON (`{"detail": "..."}` for a plain HTTPException,
+ * `{"detail": [{"msg": "...", ...}, ...]}` for a 422 validation error) — never
+ * the raw text we want to show a user. Extract the readable message instead of
+ * dumping the JSON envelope into the UI.
+ */
+async function extractErrorDetail(response: Response): Promise<string> {
+  const fallback = response.clone();
+  try {
+    const body = await response.json();
+    if (typeof body?.detail === "string") return body.detail;
+    if (Array.isArray(body?.detail)) {
+      const messages = body.detail.map((item: { msg?: string }) => item?.msg).filter(Boolean);
+      if (messages.length > 0) return messages.join(" ");
+    }
+  } catch {
+    // body wasn't JSON — fall through to raw text below
+  }
+  const text = await fallback.text().catch(() => "");
+  return text || response.statusText || "Request failed.";
+}
+
 async function apiRequest<T>(path: string, accessToken: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
@@ -46,8 +68,7 @@ async function apiRequest<T>(path: string, accessToken: string, init?: RequestIn
   }
 
   if (!response.ok) {
-    const detail = await response.text().catch(() => response.statusText);
-    throw new ApiError(detail || "Request failed.", response.status);
+    throw new ApiError(await extractErrorDetail(response), response.status);
   }
 
   if (response.status === 204) return undefined as T;
@@ -91,9 +112,13 @@ export async function streamChat({
     signal,
   });
 
+  if (response.status === 401) {
+    handleExpiredSession();
+    throw new ApiError("Your session has expired. Please log in again.", 401);
+  }
+
   if (!response.ok || !response.body) {
-    const detail = await response.text().catch(() => response.statusText);
-    throw new ApiError(detail || "Strive failed to respond.", response.status);
+    throw new ApiError(await extractErrorDetail(response), response.status);
   }
 
   const reader = response.body.getReader();
@@ -107,17 +132,7 @@ export async function streamChat({
 }
 
 export async function fetchDashboardSummary(accessToken: string, signal?: AbortSignal): Promise<DashboardSummary> {
-  const response = await fetch(`${API_BASE_URL}/api/dashboard/summary`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    signal,
-  });
-
-  if (!response.ok) {
-    const detail = await response.text().catch(() => response.statusText);
-    throw new ApiError(detail || "Failed to load dashboard data.", response.status);
-  }
-
-  return (await response.json()) as DashboardSummary;
+  return apiRequest<DashboardSummary>("/api/dashboard/summary", accessToken, { signal });
 }
 
 export async function fetchConversations(
@@ -280,8 +295,7 @@ export async function revokeShareLink(accessToken: string, clientId: string): Pr
 export async function fetchSharedConversation(token: string): Promise<SharedConversationOut> {
   const response = await fetch(`${API_BASE_URL}/api/share/${encodeURIComponent(token)}`);
   if (!response.ok) {
-    const detail = await response.text().catch(() => response.statusText);
-    throw new ApiError(detail || "This shared conversation is no longer available.", response.status);
+    throw new ApiError(await extractErrorDetail(response), response.status);
   }
   return (await response.json()) as SharedConversationOut;
 }

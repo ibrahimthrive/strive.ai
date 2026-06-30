@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     openai_base_url: str | None = Field(default=None, alias="OPENAI_BASE_URL")
     free_tier_model: str = Field(default="gpt-4o-mini", alias="FREE_TIER_MODEL")
     pro_tier_model: str = Field(default="gpt-4o", alias="PRO_TIER_MODEL")
-    free_tier_daily_message_limit: int = Field(default=20, alias="FREE_TIER_DAILY_MESSAGE_LIMIT")
+    free_tier_daily_upload_limit: int = Field(default=10, alias="FREE_TIER_DAILY_UPLOAD_LIMIT")
 
     stripe_secret_key: str = Field(alias="STRIPE_SECRET_KEY")
     stripe_webhook_secret: str = Field(alias="STRIPE_WEBHOOK_SECRET")

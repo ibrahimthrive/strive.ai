@@ -10,8 +10,8 @@ from app.models.usage_log import UsageLog
 settings = get_settings()
 
 
-class DailyLimitExceededError(Exception):
-    """Raised when a free-tier user has exhausted their daily message quota."""
+class UploadLimitExceededError(Exception):
+    """Raised when a free-tier user has exhausted their daily upload quota."""
 
 
 async def _get_or_create_today_log(db: AsyncSession, user_id: uuid.UUID) -> UsageLog:
@@ -21,23 +21,25 @@ async def _get_or_create_today_log(db: AsyncSession, user_id: uuid.UUID) -> Usag
     )
     log = result.scalar_one_or_none()
     if log is None:
-        log = UsageLog(user_id=user_id, message_count=0, last_active_date=today)
+        log = UsageLog(user_id=user_id, message_count=0, upload_count=0, last_active_date=today)
         db.add(log)
         await db.commit()
         await db.refresh(log)
     return log
 
 
-async def check_free_tier_quota(db: AsyncSession, user_id: uuid.UUID) -> None:
+async def check_free_tier_upload_quota(db: AsyncSession, user_id: uuid.UUID) -> None:
     log = await _get_or_create_today_log(db, user_id)
-    if log.message_count >= settings.free_tier_daily_message_limit:
-        raise DailyLimitExceededError(
-            f"Daily limit of {settings.free_tier_daily_message_limit} messages reached. "
-            "Upgrade to Strive Pro for unlimited messages."
+    if log.upload_count >= settings.free_tier_daily_upload_limit:
+        raise UploadLimitExceededError(
+            f"Daily upload limit of {settings.free_tier_daily_upload_limit} files reached on the Free plan. "
+            "Chat messages remain unlimited — upgrade to Strive Pro for unlimited uploads too."
         )
 
 
-async def increment_usage(db: AsyncSession, user_id: uuid.UUID) -> None:
+async def increment_usage(db: AsyncSession, user_id: uuid.UUID, *, had_upload: bool) -> None:
     log = await _get_or_create_today_log(db, user_id)
     log.message_count += 1
+    if had_upload:
+        log.upload_count += 1
     await db.commit()

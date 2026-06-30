@@ -36,7 +36,7 @@ class DashboardSummary(BaseModel):
     avg_response_ms: int | None
     storage_bytes: int
     files_uploaded: int
-    remaining_quota: int | None
+    remaining_uploads: int | None
     recent_conversations: list[ConversationSummary]
     weekly_series: list[SeriesPoint]
     monthly_series: list[SeriesPoint]

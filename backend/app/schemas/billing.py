@@ -22,6 +22,7 @@ class PlanOut(BaseModel):
     unit_amount: int | None = None
     currency: str | None = None
     interval: str | None = None
+    upload_limit_per_day: int | None = None
 
 
 class SubscriptionOut(BaseModel):

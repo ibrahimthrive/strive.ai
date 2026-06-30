@@ -124,7 +124,9 @@ function UpgradeContent() {
               })}
             </div>
 
-            <ComparisonTable />
+            <ComparisonTable
+              freeUploadLimit={plans.find((plan) => plan.tier === "free")?.upload_limit_per_day ?? null}
+            />
           </>
         )}
       </div>

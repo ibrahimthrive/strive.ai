@@ -34,7 +34,7 @@ export function AnalyticsGrid({ summary }: { summary: DashboardSummary }) {
       icon: FileText,
       label: "Files Uploaded",
       value: summary.files_uploaded,
-      comingSoon: true,
+      subLabel: "All time",
       accent: "bg-gradient-ai",
     },
     {
@@ -60,11 +60,12 @@ export function AnalyticsGrid({ summary }: { summary: DashboardSummary }) {
     },
     {
       icon: Cloud,
-      label: "Remaining Quota",
-      value: summary.remaining_quota ?? 0,
-      textValue: summary.remaining_quota === null ? "Unlimited" : undefined,
-      suffix: summary.remaining_quota !== null ? "today" : undefined,
-      subLabel: summary.remaining_quota === null ? "Storage used: " + formatBytes(summary.storage_bytes) : undefined,
+      label: "Remaining Uploads Today",
+      value: summary.remaining_uploads ?? 0,
+      textValue: summary.remaining_uploads === null ? "Unlimited" : undefined,
+      suffix: summary.remaining_uploads !== null ? "uploads" : undefined,
+      subLabel:
+        summary.remaining_uploads === null ? "Storage used: " + formatBytes(summary.storage_bytes) : undefined,
       accent: "bg-gradient-ai",
     },
   ];

@@ -16,4 +16,5 @@ class UsageLog(Base):
         ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
     )
     message_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    upload_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_active_date: Mapped[date_type] = mapped_column(Date, nullable=False)

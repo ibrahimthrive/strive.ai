@@ -18,4 +18,4 @@ async def dashboard_summary(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DashboardSummary:
-    return await get_dashboard_summary(db, current_user, settings.free_tier_daily_message_limit)
+    return await get_dashboard_summary(db, current_user, settings.free_tier_daily_upload_limit)

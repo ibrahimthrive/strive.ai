@@ -6,6 +6,7 @@ export interface PlanOut {
   unit_amount: number | null;
   currency: string | null;
   interval: string | null;
+  upload_limit_per_day: number | null;
 }
 
 export interface SubscriptionOut {

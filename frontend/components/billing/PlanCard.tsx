@@ -12,33 +12,28 @@ const PLAN_ICON: Record<PlanTier, LucideIcon> = {
   business: Building2,
 };
 
-const PLAN_COPY: Record<PlanTier, { name: string; tagline: string; features: string[] }> = {
-  free: {
-    name: "Free",
-    tagline: "Get a feel for Strive",
-    features: ["20 messages per day", "gpt-4o-mini model", "Conversation history & folders", "Community support"],
-  },
-  pro: {
-    name: "Pro",
-    tagline: "For everyday power users",
-    features: [
-      "Unlimited messages",
-      "gpt-4o model",
-      "Conversation history & folders",
-      "Priority support",
-    ],
-  },
-  business: {
-    name: "Business",
-    tagline: "For teams that depend on Strive",
-    features: [
-      "Everything in Pro",
-      "Business invoicing & receipts",
-      "Priority support queue",
-      "Dedicated account email",
-    ],
-  },
+const PLAN_COPY: Record<PlanTier, { name: string; tagline: string }> = {
+  free: { name: "Free", tagline: "Get a feel for Strive" },
+  pro: { name: "Pro", tagline: "For everyday power users" },
+  business: { name: "Business", tagline: "For teams that depend on Strive" },
 };
+
+function featuresFor(plan: PlanOut): string[] {
+  switch (plan.tier) {
+    case "free":
+      return [
+        "Unlimited messages",
+        plan.upload_limit_per_day !== null ? `${plan.upload_limit_per_day} uploads per day` : "Limited uploads",
+        "gpt-4o-mini model",
+        "Conversation history & folders",
+        "Community support",
+      ];
+    case "pro":
+      return ["Unlimited messages", "Unlimited uploads", "gpt-4o model", "Conversation history & folders", "Priority support"];
+    case "business":
+      return ["Everything in Pro", "Business invoicing & receipts", "Priority support queue", "Dedicated account email"];
+  }
+}
 
 function formatPrice(plan: PlanOut): string {
   if (plan.unit_amount === null || plan.unit_amount === 0) return "$0";
@@ -100,7 +95,7 @@ export function PlanCard({ plan, isCurrent, popular, ctaLabel, ctaDisabled, ctaL
         )}
 
         <ul className="flex-1 space-y-2.5">
-          {copy.features.map((feature) => (
+          {featuresFor(plan).map((feature) => (
             <li key={feature} className="flex items-start gap-2 text-sm text-ink-secondary">
               <Check size={14} className="mt-0.5 shrink-0 text-neural-cyan" />
               {feature}

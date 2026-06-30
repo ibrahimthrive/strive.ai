@@ -35,7 +35,16 @@ def _to_datetime(epoch_seconds: int | None) -> datetime | None:
 
 
 def get_plans() -> list[PlanOut]:
-    plans = [PlanOut(tier="free", available=True, unit_amount=0, currency="usd", interval=None)]
+    plans = [
+        PlanOut(
+            tier="free",
+            available=True,
+            unit_amount=0,
+            currency="usd",
+            interval=None,
+            upload_limit_per_day=settings.free_tier_daily_upload_limit,
+        )
+    ]
     for tier in ("pro", "business"):
         price_id = _PRICE_ID_BY_TIER.get(tier)
         if not price_id:

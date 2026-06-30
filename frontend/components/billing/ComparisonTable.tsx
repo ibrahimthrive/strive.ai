@@ -7,14 +7,22 @@ interface ComparisonRow {
   business: boolean | string;
 }
 
-const ROWS: ComparisonRow[] = [
-  { label: "Daily messages", free: "20 / day", pro: "Unlimited", business: "Unlimited" },
-  { label: "Model", free: "gpt-4o-mini", pro: "gpt-4o", business: "gpt-4o" },
-  { label: "Conversation history & folders", free: true, pro: true, business: true },
-  { label: "Priority support", free: false, pro: true, business: true },
-  { label: "Business invoicing & receipts", free: false, pro: false, business: true },
-  { label: "Dedicated account email", free: false, pro: false, business: true },
-];
+function buildRows(freeUploadLimit: number | null): ComparisonRow[] {
+  return [
+    { label: "Daily messages", free: "Unlimited", pro: "Unlimited", business: "Unlimited" },
+    {
+      label: "Daily uploads",
+      free: freeUploadLimit !== null ? `${freeUploadLimit} / day` : "Limited",
+      pro: "Unlimited",
+      business: "Unlimited",
+    },
+    { label: "Model", free: "gpt-4o-mini", pro: "gpt-4o", business: "gpt-4o" },
+    { label: "Conversation history & folders", free: true, pro: true, business: true },
+    { label: "Priority support", free: false, pro: true, business: true },
+    { label: "Business invoicing & receipts", free: false, pro: false, business: true },
+    { label: "Dedicated account email", free: false, pro: false, business: true },
+  ];
+}
 
 function Cell({ value }: { value: boolean | string }) {
   if (typeof value === "string") return <span className="text-sm text-ink-secondary">{value}</span>;
@@ -25,7 +33,8 @@ function Cell({ value }: { value: boolean | string }) {
   );
 }
 
-export function ComparisonTable() {
+export function ComparisonTable({ freeUploadLimit }: { freeUploadLimit: number | null }) {
+  const rows = buildRows(freeUploadLimit);
   return (
     <div className="glass-panel overflow-x-auto rounded-2xl">
       <table className="w-full min-w-[480px] text-left">
@@ -38,7 +47,7 @@ export function ComparisonTable() {
           </tr>
         </thead>
         <tbody>
-          {ROWS.map((row) => (
+          {rows.map((row) => (
             <tr key={row.label} className="border-b border-white/5 last:border-0">
               <td className="px-4 py-3 text-sm text-ink-primary">{row.label}</td>
               <td className="px-4 py-3">

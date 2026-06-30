@@ -31,7 +31,7 @@ export interface DashboardSummary {
   avg_response_ms: number | null;
   storage_bytes: number;
   files_uploaded: number;
-  remaining_quota: number | null;
+  remaining_uploads: number | null;
   recent_conversations: ConversationSummary[];
   weekly_series: SeriesPoint[];
   monthly_series: SeriesPoint[];

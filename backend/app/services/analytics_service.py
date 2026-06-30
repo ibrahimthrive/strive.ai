@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.conversation import Conversation
 from app.models.message import Message, MessageRole
+from app.models.usage_log import UsageLog
 from app.models.user import Tier, User
 from app.schemas.dashboard import ActivityItem, ConversationSummary, DashboardSummary, SeriesPoint, UsageStat
 
@@ -193,11 +194,12 @@ async def _activity(db: AsyncSession, user_id: uuid.UUID) -> list[ActivityItem]:
     ]
 
 
-async def get_dashboard_summary(db: AsyncSession, user: User, free_tier_daily_limit: int) -> DashboardSummary:
+async def get_dashboard_summary(db: AsyncSession, user: User, free_tier_daily_upload_limit: int) -> DashboardSummary:
     now = datetime.now(timezone.utc)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = now - timedelta(days=7)
     month_start = now - timedelta(days=30)
+    today = today_start.date()
 
     messages_sent, user_tokens = await _role_stats(db, user.id, MessageRole.USER, today_start, week_start, month_start)
     ai_requests, assistant_tokens = await _role_stats(
@@ -213,7 +215,14 @@ async def get_dashboard_summary(db: AsyncSession, user: User, free_tier_daily_li
     storage_stmt = select(func.coalesce(func.sum(func.length(Message.content)), 0)).where(Message.user_id == user.id)
     storage_bytes = (await db.execute(storage_stmt)).scalar_one()
 
-    remaining_quota = max(free_tier_daily_limit - messages_sent.today, 0) if user.tier == Tier.FREE else None
+    uploads_total_stmt = select(func.coalesce(func.sum(UsageLog.upload_count), 0)).where(UsageLog.user_id == user.id)
+    files_uploaded = (await db.execute(uploads_total_stmt)).scalar_one()
+
+    uploads_today_stmt = select(UsageLog.upload_count).where(
+        UsageLog.user_id == user.id, UsageLog.last_active_date == today
+    )
+    uploads_today = (await db.execute(uploads_today_stmt)).scalar_one_or_none() or 0
+    remaining_uploads = max(free_tier_daily_upload_limit - uploads_today, 0) if user.tier == Tier.FREE else None
 
     return DashboardSummary(
         messages_sent=messages_sent,
@@ -221,8 +230,8 @@ async def get_dashboard_summary(db: AsyncSession, user: User, free_tier_daily_li
         tokens_used=tokens_used,
         avg_response_ms=await _avg_response_ms(db, user.id, month_start),
         storage_bytes=storage_bytes,
-        files_uploaded=0,
-        remaining_quota=remaining_quota,
+        files_uploaded=files_uploaded,
+        remaining_uploads=remaining_uploads,
         recent_conversations=await _recent_conversations(db, user.id),
         weekly_series=await _weekly_series(db, user.id, today_start),
         monthly_series=await _monthly_series(db, user.id, now),
